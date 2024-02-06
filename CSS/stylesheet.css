@@ -1,0 +1,29 @@
+html, body {
+    height: 100%;
+    margin: 0%;
+}
+
+.navigation{
+    height: 5%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    background-color: rgb(54, 69, 79);
+}
+.content{
+    height: 100%;
+    width: 100%;
+    display: flex;
+}
+.left{
+    height: 100%;
+    width: 15%;
+    background-color: rgb(229, 228, 226);
+    overflow: auto;
+}
+.right{
+    height: 100%;
+    width: 85%;
+    background-color: rgb(211, 211, 211);
+    overflow: auto;
+}

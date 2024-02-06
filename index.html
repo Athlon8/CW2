@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ahtisham's Courses</title>
+    <!-- Below are all the essential links for the project -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.15.4/js/all.js" integrity="sha384-rOA1PnstxnOBLzCLMcre8ybwbTmemjzdNlILg8O7z1lUkLXozs4DHonlDtnE7fpc" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="CSS/stylesheet.css">
+    <script src="javascript/products.js"></script>
+</head>
+<body>
+    <div id="app" style="height: 100%; width: 100%;">
+        <!-- The div below is for navigation. The top part of the website -->
+        <div class='navigation'>
+            <img src="Images/athlon.png" alt="">
+            <p style="color: aliceblue; margin-left: 2%;">Ahtisham's Courses</p>
+            <button  v-on:click="showCheckout" v-if="cartItemCount > 0" style="cursor: pointer;" >
+                <span>{{cartItemCount}}</span>
+                <span class="fas fa-cart-plus"></span>
+            </button>
+            <button v-else>
+                <span class="fas fa-cart-plus"></span>
+            </button>
+        </div>
+        <!-- The div below is for the content of the website that is below the navigation. This div is further divided in 2 divs -->
+        <div class='content'>
+            <!-- The div below is the first div of the content div and it is for the left side of the website -->
+            <div class='left' style="padding: 2%;">
+                <input v-model="search" placeholder="Search">
+                <p><strong>Sort By:</strong></p>
+                <p><input type="radio" id="title" value="Title" v-model="sort">
+                    <label for="title">Title</label></p>
+                <p><input type="radio" id="location" value="Location" v-model="sort">
+                    <label for="location">Location</label></p>
+                <p><input type="radio" id="price" value="Price" v-model="sort">
+                    <label for="price">Price</label></p>
+                <p><input type="radio" id="availability" value="Availability" v-model="sort">
+                    <label for="availability">Availability</label></p>
+                <p><strong>Price Order:</strong></p>
+                <p><input type="radio" id="ascending" value="Ascending" v-model="sortOrder">
+                    <label for="ascending">Ascending</label></p>
+                <p><input type="radio" id="descending" value="Descending" v-model="sortOrder">
+                    <label for="descending">Descending</label></p>
+            </div>
+             <!-- The div below is the first div of the content div and it is for the right side of the website -->
+            <div class='right' style="padding: 2%;">
+                <!-- The main tag below is where all the content of the right side div be. Which includes 2 divs. The first one
+                    is for displaying the order confirmation if the order is confirmed and the other one for displaying
+                    the products and the cart.  -->
+                <main>
+                    <!-- The div below will be displayed when the order is placed -->
+                    <div v-if="ordered">
+                        <div style="width: 95%; height: fit-content; padding: 2%; background-color: antiquewhite; border-radius: 4%; margin-top: 2%;">
+                            <h1 style="text-align: center;">Order Information</h1>
+                            <p>
+                                <strong>First Name: </strong>
+                                <p> {{order.firstName}}</p>
+                            </p>
+                            <p>
+                                <strong>Last Name: </strong>
+                                <p> {{order.lastName}}</p>
+                            </p>
+                            <p>
+                                <strong>Number: </strong>
+                                <p> {{order.number}}</p>
+                            </p>
+                            <h1 style="text-align: center;">Your order has been confirmed</h1>
+                            <div style="text-align: center;">
+                                <button style="background-color: rgb(2, 117, 216); border-radius: 20%; cursor: pointer; color: white; font-size: large; padding: 2%;" v-on:click="backToStarting"
+                                >Go Back</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- The div below would be displayed when the website loads. This div is further divided in 2 divs. One
+                    for displaying the products and the other one for displaying the cart -->
+                    <div v-else>
+                        <!-- The div below is for displaying the products. This div is further divided into 2 different divs
+                        which serve different purpose and would be swapped in between when required -->
+                        <div v-if="showProduct" style="width: 100%; margin: 2%; display: flex; flex-wrap: wrap;">
+                            <!-- The div below would check if the user has searched anything or not and if the user has not then it will
+                            be displayed and it would get the products list from sortedProducts -->
+                            <div v-if="search==''" v-for="product in sortedProducts" style="width: 15%; padding: 2%; background-color: aliceblue; border-radius: 2%; margin: 2%;">
+                                <figure>
+                                    <img v-bind:src = "product.image" height="100px" width="100px">
+                                </figure>
+                                <h2 v-text="product.title"></h2>
+                                <p v-html="product.description"></p>
+                                <p>Location: {{product.Location}}</p>
+                                <p>Price: {{product.price}} </p>
+                                <p>Available Inventory {{product.availableInventory - cartCount(product.id)}}</p>
+                                <button v-on:click = "addToCart(product)" v-if="canAddToCart(product)" style="background-color: rgb(2, 117, 216); border-radius: 20%; cursor: pointer; color: white;">
+                                    Add to cart 
+                                </button>
+                                <button disabled="disabled" v-else style="background-color: rgb(223, 53, 69); border-radius: 20%; color: white;">
+                                    Add to cart
+                                </button>
+                                <span v-if="product.availableInventory === cartCount(product.id)">All out!</span>
+                                <span v-else-if="product.availableInventory - cartCount(product.id) < 5">Only {{product.availableInventory - cartCount(product.id)}} left!</span>
+                                <span v-else>Buy now!</span>
+                                <span v-for="n in product.rating">★</span>
+                                <span v-for="n in 5-product.rating">☆</span>
+                            </div>
+                            <!-- The div below would also check the same thing but would be displayed when the user searches something. It would
+                            get the products from searchedProducts -->
+                            <div v-if="search!=''" v-for="product in searchedProducts" style="width: 15%; padding: 2%; background-color: aliceblue; border-radius: 2%; margin: 2%;">
+                                <figure>
+                                    <img v-bind:src = "product.image" height="100px" width="100px">
+                                </figure>
+                                <h2 v-text="product.title"></h2>
+                                <p v-html="product.description"></p>
+                                <p>Location: {{product.Location}}</p>
+                                <p>Price: {{product.price}} </p>
+                                <p>Available Spaces {{product.availableInventory - cartCount(product.id)}}</p>
+                                <button v-on:click = "addToCart(product)" v-if="canAddToCart(product)" style="background-color: rgb(2, 117, 216); border-radius: 20%; cursor: pointer; color: white;">
+                                    Add to cart 
+                                </button>
+                                <button disabled="disabled" v-else style="background-color: rgb(223, 53, 69); border-radius: 20%; color: white;">
+                                    Add to cart
+                                </button>
+                                <span v-if="product.availableInventory === cartCount(product.id)">All out!</span>
+                                <span v-else-if="product.availableInventory - cartCount(product.id) < 5">Only {{product.availableInventory - cartCount(product.id)}} left!</span>
+                                <span v-else>Buy now!</span>
+                                <span v-for="n in product.rating">★</span>
+                                <span v-for="n in 5-product.rating">☆</span>
+                            </div>
+                        </div>
+                        <!-- The div below is for displaying the cart -->
+                        <div v-else>
+                            <div style="padding: 2%;">
+                                <h1 style="text-align: center;">Cart</h1>
+                                <!-- The div below is for displaying the products in the cart with their spaces -->
+                                <div style="display: flex; flex-wrap: wrap;">
+                                    <div v-for="product in cartProducts" style="width: 17%; padding: 2%; background-color: aliceblue; border-radius: 2%; margin: 2%;">
+                                        <figure>
+                                            <img v-bind:src = "product.image" height="100px" width="100px">
+                                        </figure>
+                                        <h2 v-text="product.title"></h2>
+                                        <p v-html="product.description"></p>
+                                        <p>Location: {{product.location}}</p>
+                                        <p>Spaces: {{cartCount(product.id)}}</p>
+                                        <p>Price: {{product.price}} Per Course</p>
+                                        <span> 
+                                            <button v-on:click = "removeOne(product.id)" style="border-radius: 20%; background-color: rgb(223, 53, 69); color: white; cursor: pointer;">
+                                                Remove One
+                                            </button>
+                                        </span>
+                                        <span style="border-radius: 4%;">
+                                            <button v-on:click = "removeAll(product.id)" style="border-radius: 20%; background-color: rgb(223, 53, 69); color: white; cursor: pointer;">
+                                                Remove All
+                                            </button>
+                                        </span>
+                                        <span v-for="n in product.rating">★</span>
+                                        <span v-for="n in 5-product.rating">☆</span>
+                                    </div>
+                                </div>
+                                <!-- The div below is to collect the required order information from the user -->
+                                <div style="width: 95%; height: fit-content; padding: 2%; background-color: antiquewhite; border-radius: 4%; margin-top: 2%;">
+                                    <h1 style="text-align: center;">Order Information</h1>
+                                    <p>
+                                        <strong>First Name: </strong>
+                                        <input v-model="order.firstName" type="text">
+                                    </p>
+                                    <p>
+                                        <strong>Last Name: </strong>
+                                        <input v-model="order.lastName" type="text">
+                                    </p>
+                                    <p>
+                                        <strong>Number: </strong>
+                                        <input v-model="order.number" type="number">
+                                    </p>
+                                    <div style="text-align: center;">
+                                        <button style="background-color: rgb(2, 117, 216); border-radius: 20%; cursor: pointer; color: white; font-size: large; padding: 2%;" v-on:click="checkout"
+                                        v-if="cartItemCount>0 && checkNameAndPhone">Checkout</button>
+                                        <button disabled="disabled" v-else style="background-color: rgb(223, 53, 69);  border-radius: 20%; color: white; font-size: large; padding: 2%;">
+                                            Checkout
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+</body>
+
+    <script type="text/javascript">
+        // The vue instance below is the only instance for this website
+        let webstore = new Vue ({
+            // Below the main div is mounted
+            el: "#app",
+            // The data object below is to store all the required data for the website
+            data: {
+                sitename: "Vue.js Pet Depot",
+                products: products, 
+                showProduct: true,
+                cart: [],
+                search: '',
+                sort: '',
+                sortOrder: 'Ascending',
+                order: {
+                            firstName: '',
+                            lastName: '',
+                            number: ''
+                        },
+                ordered: false
+            },
+            created() {
+                    this.gettingProducts();
+                },
+            // The methods object below is to store all the vue methods that would be used for this website
+            methods: {
+                    // The method below is to add the id of the product to the cart array
+                    // http://mobileapp-env.eba-efkwc3zy.eu-west-2.elasticbeanstalk.com
+                    gettingProducts: function(){
+                        fetch('http://localhost:3000/collection/products', {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            // body: JSON.stringify(products)
+                        }).then(response => response.json())
+                            .then(responseJSON => {
+                                // console.log(responseJSON);
+                                this.products = responseJSON
+                            }).catch((error) => {
+                                console.log(error);
+                            })
+                    },
+                    addToCart: function(product){
+                        this.cart.push(product.id);
+                    },
+                    // The method below is to swap the values of showProduct, which is used to determine which div to show
+                    showCheckout() {
+                        this.showProduct = this.showProduct ? false : true;
+                    },
+                    // The method below takes the product as parameter and checks if it can be added to cart or not
+                    canAddToCart(product) {
+                        return product.availableInventory > this.cartCount(product.id);
+                    },
+                    // The method below returns the cartCount of a specifc product by its id
+                    cartCount(id) {
+                            let count = 0;
+                            for(let i = 0; i < this.cart.length; i++) {
+                                if (this.cart[i] === id) {
+                                count++;
+                                }
+                            }
+                            return count;
+                    },
+                    // The method below is to remove one space of the product from the cart
+                    removeOne(id) {
+                        let counter = 0;
+                        function  removing(product){
+                            if(product !== id){
+                                return product;
+                            }else{ 
+                                if(counter===0){
+                                }else{
+                                    return product;
+                                }
+                                counter = counter + 1;
+                            }
+                        }
+                        this.cart = this.cart.filter(removing)
+                    },
+                    // The method below is to remove all the spaces of a single product
+                    removeAll(id) {
+                        function  removing(product){
+                            if(product !== id){
+                                return product;
+                            }
+                        }
+                        this.cart = this.cart.filter(removing)
+                    },
+                    // The method below is to determine when to show the order confirmation page
+                    checkout(){
+                        this.ordered = true;
+                    },
+                    // The method below is after the order is successfull
+                    backToStarting() {
+                        this.cart.splice(0, this.cart.length);
+                        this.order.firstName = '';
+                        this.order.lastName = '';
+                        this.order.number = '';
+                        this.ordered = false;
+                        this.showProduct = true;
+                    }
+                },
+            // Below are the computed values
+            computed: {
+                // The value below is to return the length of the cart
+                cartItemCount: function() {
+                    return this.cart.length || '';
+                },
+                // The method below is to sort the products
+                sortedProducts() {
+                        sortCart = this.cart;
+                        function compareTitle(a, b) {
+                                    if (a.title > b.title) return 1;
+                                    if (a.title < b.title) return -1;
+                                    return 0;
+                                }
+                        function compareLocation(a, b) {
+                                    if (a.Location > b.Location) return 1;
+                                    if (a.Location < b.Location) return -1;
+                                    return 0;
+                                }
+                        function comparePrice(a, b) {
+                                    if (a.price > b.price) return 1;
+                                    if (a.price < b.price) return -1;
+                                    return 0;
+                                }
+                        function cartCount(id) {
+                            let count = 0;
+                            for(let i = 0; i < sortCart.length; i++) {
+                                if (sortCart[i] === id) {
+                                count++;
+                                }
+                            }
+                            return count;
+                        }
+                        function compareAvailability(a, b) {
+                            console.log(a.availableInventory - cartCount(a.id));
+                                    if (a.availableInventory - cartCount(a.id) > b.availableInventory - cartCount(b.id)) return 1;
+                                    if (a.availableInventory - cartCount(a.id) < b.availableInventory - cartCount(b.id)) return -1;
+                                    return 0;
+                                }
+                        switch(true){
+                            case this.sort === 'Title' && this.sortOrder === 'Ascending':
+                                return this.products.sort(compareTitle);
+                                break;
+                            case this.sort === 'Title' && this.sortOrder === 'Descending':
+                                return this.products.sort(compareTitle).reverse();
+                                break;
+                            case this.sort === 'Location' && this.sortOrder === 'Ascending':
+                                return this.products.sort(compareLocation);
+                                break;
+                            case this.sort === 'Location' && this.sortOrder === 'Descending':
+                                return this.products.sort(compareLocation).reverse();
+                                break;
+                            case this.sort === 'Price' && this.sortOrder === 'Ascending':
+                                return this.products.sort(comparePrice);
+                                break;
+                            case this.sort === 'Price' && this.sortOrder === 'Descending':
+                                return this.products.sort(comparePrice).reverse();
+                                break;
+                            case this.sort === 'Availability' && this.sortOrder === 'Ascending':
+                                return this.products.sort(compareAvailability);
+                                break;
+                            case this.sort === 'Availability' && this.sortOrder === 'Descending':
+                                return this.products.sort(compareAvailability).reverse();
+                                break;
+                            default: 
+                                return this.products;
+                                break;
+                        }
+                        
+                },
+                // The method below is to return the searched products
+                searchedProducts() {
+
+                        fetch('http://localhost:3000/collection/products/' + this.search, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            // body: JSON.stringify(products)
+                        }).then(response => response.json())
+                            .then(responseJSON => {
+                                console.log(responseJSON);
+                            }).catch((error) => {
+                                console.log(error);
+                            })
+                    const search = (product) => {
+                        return product.title.toLowerCase().includes(this.search.toLowerCase()) || product.description.toLowerCase().includes(this.search.toLowerCase()) ||
+                        product.Location.toLowerCase().includes(this.search.toLowerCase());
+                    }
+                    return this.products.filter(search);
+                },
+                // The method below is to return the products in the cart
+                cartProducts() {
+                    const allProducts = (product) => {
+                    return this.cart.includes(product.id);
+                    }
+                    return this.products.filter(allProducts);
+                },
+                // The method below is to check if the name and phone are valid using regex
+                checkNameAndPhone(){
+                    return /^[A-Za-z\s]+$/.test(this.order.firstName) && /^[A-Za-z\s]+$/.test(this.order.lastName) && /^[0-9]+$/.test(this.order.number);
+                }
+            },
+        });
+    </script>
+</html>
