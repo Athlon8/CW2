@@ -279,6 +279,19 @@
                     // The method below is to determine when to show the order confirmation page
                     checkout(){
                         this.ordered = true;
+                        fetch('http://ahtishamscourses-env.eba-yrk6smcw.eu-west-2.elasticbeanstalk.com/collection/orders', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            // body: JSON.stringify(products)
+                        }).then(response => response.json())
+                            .then(responseJSON => {
+                                // console.log(responseJSON);
+                                this.products = responseJSON
+                            }).catch((error) => {
+                                console.log(error);
+                            })
                     },
                     // The method below is after the order is successfull
                     backToStarting() {
@@ -384,7 +397,7 @@
                 // The method below is to return the products in the cart
                 cartProducts() {
                     const allProducts = (product) => {
-                    return this.cart.includes(product.id);
+                        return this.cart.includes(product.id);
                     }
                     return this.products.filter(allProducts);
                 },
