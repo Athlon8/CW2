@@ -198,7 +198,7 @@
                 products: products, 
                 showProduct: true,
                 cart: [],
-                search: '',
+                search: "",
                 sort: '',
                 sortOrder: 'Ascending',
                 order: {
@@ -216,7 +216,7 @@
                     // The method below is to add the id of the product to the cart array
                     // http://mobileapp-env.eba-efkwc3zy.eu-west-2.elasticbeanstalk.com
                     gettingProducts: function(){
-                        fetch('http://localhost:3000/collection/products', {
+                        fetch('http://ahtishamscourses-env.eba-yrk6smcw.eu-west-2.elasticbeanstalk.com/collection/products', {
                             method: 'GET',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -363,7 +363,7 @@
                 // The method below is to return the searched products
                 searchedProducts() {
 
-                        fetch('http://localhost:3000/collection/products/' + this.search, {
+                        fetch('http://ahtishamscourses-env.eba-yrk6smcw.eu-west-2.elasticbeanstalk.com/products/' + this.search, {
                             method: 'GET',
                             headers: {
                                 'Content-Type': 'application/json',
