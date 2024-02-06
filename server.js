@@ -56,7 +56,8 @@ app.get('/:collectionName/:search', (req, res, next) => {
     let search = req.params.search;
      req.collection.find({$or: [
         { title: { $regex: search, $options: 'i' } }, 
-        { description: { $regex: search, $options: 'i' } }
+        { description: { $regex: search, $options: 'i' } },
+        { Location: { $regex: search, $options: 'i' } }
     ]}).toArray((e, results) => {
         if (e) return next (e);
         console.log(results)
