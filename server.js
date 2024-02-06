@@ -37,7 +37,7 @@ app.get('/collection/:collectionName', (req, res, next) => {
     })
 });
 
-app.get('/collection/:collectionName/:search', (req, res, next) => {
+app.get('/:collectionName/:search', (req, res, next) => {
     // let title = req.params.title;
     // let description = req.params.description;
     // // let searchCriteria = {
