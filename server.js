@@ -17,7 +17,7 @@ const MongoClient = require("mongodb").MongoClient;
 let db;
 
 MongoClient.connect('mongodb+srv://athlon:23rdfeb@cluster0.gfygabo.mongodb.net', (err, client) => {
-    db = client.db('webstore');
+    db = client.db('ahtishamscourses');
 });
 
 app.get('/', (req, res, next) => {
@@ -65,8 +65,9 @@ app.get('/:collectionName/:search', (req, res, next) => {
     })
 });
 
-app.post('/collection/:collectionName', (req, res, next) => {
-    req.collection.insert(req.body, (e, results) => {
+app.post('/orders', (req, res, next) => {
+    console.log(req.body);
+    req.orders.insert(req.body, (e, results) => {
         if(e) return next(e);
         res.send(results.ops);
     });

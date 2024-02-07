@@ -66,6 +66,10 @@
                                 <strong>Number: </strong>
                                 <p> {{order.number}}</p>
                             </p>
+                            <p>
+                                <strong>Products: </strong>
+                                <p> {{order.productsString}}</p>
+                            </p>
                             <h1 style="text-align: center;">Your order has been confirmed</h1>
                             <div style="text-align: center;">
                                 <button style="background-color: rgb(2, 117, 216); border-radius: 20%; cursor: pointer; color: white; font-size: large; padding: 2%;" v-on:click="backToStarting"
@@ -200,11 +204,13 @@
                 cart: [],
                 search: "",
                 sort: '',
+                orderedCart: [],
                 sortOrder: 'Ascending',
                 order: {
                             firstName: '',
                             lastName: '',
-                            number: ''
+                            number: '',
+                            productsString: ""
                         },
                 ordered: false
             },
@@ -279,12 +285,29 @@
                     // The method below is to determine when to show the order confirmation page
                     checkout(){
                         this.ordered = true;
-                        fetch('http://ahtishamscourses-env.eba-yrk6smcw.eu-west-2.elasticbeanstalk.com/collection/orders', {
+                        let productInformation = {};
+                        for(let i = 0; i < this.cartProducts.length;i++){
+                            productInformation[this.cartProducts[i]._id] = this.cartCount(this.cartProducts[i].id);
+                            if(i === this.cartProducts.length-1){
+                                this.order.productsString += this.cartProducts[i].title + " x " + this.cartCount(this.cartProducts[i].id);
+                            }else{
+                                this.order.productsString += this.cartProducts[i].title + " x " + this.cartCount(this.cartProducts[i].id) + ", ";
+                            }
+                        }
+                        console.log(productInformation);
+                        let orderInformation = {
+                            "fullName": this.order.firstName + " " + this.order.lastName,
+                            "number": this.order.number,
+                            "productString": this.order.productsString,
+                            "productInformation": productInformation
+                        }
+
+                        fetch('http://ahtishamscourses-env.eba-yrk6smcw.eu-west-2.elasticbeanstalk.com/orders', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                             },
-                            // body: JSON.stringify(products)
+                            body: JSON.stringify(orderInformation)
                         }).then(response => response.json())
                             .then(responseJSON => {
                                 // console.log(responseJSON);
