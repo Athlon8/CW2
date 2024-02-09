@@ -287,7 +287,7 @@
                         this.ordered = true;
                         let productInformation = {};
                         for(let i = 0; i < this.cartProducts.length;i++){
-                            productInformation[this.cartProducts[i]._id] = this.cartCount(this.cartProducts[i].id);
+                            productInformation[this.cartProducts[i]._id] = this.cartProducts[i].availableInventory - this.cartCount(this.cartProducts[i].id);
                             if(i === this.cartProducts.length-1){
                                 this.order.productsString += this.cartProducts[i].title + " x " + this.cartCount(this.cartProducts[i].id);
                             }else{
@@ -302,7 +302,7 @@
                             "productInformation": productInformation
                         }
 
-                        fetch('http://ahtishamscourses-env.eba-yrk6smcw.eu-west-2.elasticbeanstalk.com/orders', {
+                        fetch('http://localhost:3000/orders', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -310,11 +310,27 @@
                             body: JSON.stringify(orderInformation)
                         }).then(response => response.json())
                             .then(responseJSON => {
-                                // console.log(responseJSON);
-                                this.products = responseJSON
+                                console.log(responseJSON);
+                                // this.products = responseJSON
                             }).catch((error) => {
                                 console.log(error);
-                            })
+                        })
+                        Object.keys(productInformation).forEach((key, value) => {  
+                            console.log(`Keys of objects: ${key} and values: ${value}`)                        
+                            fetch(`http://localhost:3000/collection/products/${key}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({"availableInventory": productInformation[key]})
+                            }).then(response => response.json())
+                                .then(responseJSON => {
+                                    console.log(responseJSON);
+                                    // this.products = responseJSON
+                                }).catch((error) => {
+                                    console.log(error);
+                                })
+                        });
                     },
                     // The method below is after the order is successfull
                     backToStarting() {

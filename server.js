@@ -12,6 +12,8 @@ app.use((req,res,next) => {
     next();
 });
 
+
+
 const MongoClient = require("mongodb").MongoClient;
 
 let db;
@@ -66,8 +68,7 @@ app.get('/:collectionName/:search', (req, res, next) => {
 });
 
 app.post('/orders', (req, res, next) => {
-    console.log(req.body);
-    req.orders.insert(req.body, (e, results) => {
+    db.collection('orders').insertOne(req.body, (e, results) => {
         if(e) return next(e);
         res.send(results.ops);
     });
