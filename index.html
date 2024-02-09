@@ -302,7 +302,7 @@
                             "productInformation": productInformation
                         }
 
-                        fetch('http://localhost:3000/orders', {
+                        fetch('http://ahtishamscourses-env.eba-yrk6smcw.eu-west-2.elasticbeanstalk.com/orders', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -317,7 +317,7 @@
                         })
                         Object.keys(productInformation).forEach((key, value) => {  
                             console.log(`Keys of objects: ${key} and values: ${value}`)                        
-                            fetch(`http://localhost:3000/collection/products/${key}`, {
+                            fetch(`http://ahtishamscourses-env.eba-yrk6smcw.eu-west-2.elasticbeanstalk.com/collection/products/${key}`, {
                                 method: 'PUT',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -416,7 +416,7 @@
                 // The method below is to return the searched products
                 searchedProducts() {
 
-                        fetch('http://localhost:3000/products/' + this.search, {
+                        fetch('http://ahtishamscourses-env.eba-yrk6smcw.eu-west-2.elasticbeanstalk.com/products/' + this.search, {
                             method: 'GET',
                             headers: {
                                 'Content-Type': 'application/json',
